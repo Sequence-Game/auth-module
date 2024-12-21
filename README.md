@@ -1,5 +1,6 @@
 ---
 ## **Authentication Module Overview**
+
 The **Authentication Module** manages user identity and access control. It ensures users are authenticated and authorized to perform specific actions within the application. The module is designed to be a **black box**, exposing a clean and well-documented API for external systems.
 ---
 

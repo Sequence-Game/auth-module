@@ -1,1 +1,4 @@
 /venv
+*.py[cod]
+/.idea
+/.pytest_cache

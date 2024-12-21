@@ -1,5 +1,5 @@
 from sqlalchemy import Column, String, DateTime, Boolean, ForeignKey, func
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, declarative_base
 
 Base = declarative_base()
 
