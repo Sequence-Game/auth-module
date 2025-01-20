@@ -2,3 +2,4 @@
 *.py[cod]
 /.idea
 /.pytest_cache
+.vscode/
