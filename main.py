@@ -2,6 +2,8 @@
 
 from fastapi import FastAPI
 
+from server.http.router import combined_routers
+
 
 app: FastAPI
 
@@ -11,6 +13,8 @@ def main() -> None:
     global app
 
     app = FastAPI()
+
+    app.include_router(combined_routers([]))
 
 
 if __name__ == "__main__":
