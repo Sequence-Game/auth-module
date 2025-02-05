@@ -4,6 +4,7 @@ from sqlalchemy.orm import relationship, declarative_base
 Base = declarative_base()
 
 class User(Base):
+    """User model"""
     __tablename__ = "users"
     id = Column(String, primary_key=True)  # user UUID
     email = Column(String, unique=True, index=True, nullable=False)
@@ -13,6 +14,7 @@ class User(Base):
     social_accounts = relationship("SocialAccount", back_populates="user")
 
 class SocialAccount(Base):
+    """Social account model"""
     __tablename__ = "social_accounts"
     id = Column(String, primary_key=True)
     user_id = Column(String, ForeignKey("users.id"), nullable=False)
@@ -22,6 +24,7 @@ class SocialAccount(Base):
     user = relationship("User", back_populates="social_accounts")
 
 class RefreshToken(Base):
+    """Refresh token model"""
     __tablename__ = "refresh_tokens"
     token = Column(String, primary_key=True)
     user_id = Column(String, nullable=False)

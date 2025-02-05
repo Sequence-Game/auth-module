@@ -9,17 +9,20 @@ from lib.models import Base, User, SocialAccount, RefreshToken
 
 @pytest.fixture(scope="module")
 def engine():
+    """SQLAlchemy engine fixture"""
     # Use an in-memory SQLite DB for testing
     return create_engine("sqlite:///:memory:")
 
 @pytest.fixture(scope="module")
 def tables(engine):
+    """Create and drop database tables"""
     Base.metadata.create_all(engine)
     yield
     Base.metadata.drop_all(engine)
 
 @pytest.fixture
 def db_session(engine, tables):
+    """SQLAlchemy session fixture"""
     # Create a new session for each test
     SessionLocal = sessionmaker(bind=engine)
     session = SessionLocal()
@@ -29,6 +32,7 @@ def db_session(engine, tables):
         session.close()
 
 def test_create_user(db_session):
+    """Test user creation"""
     user_id = str(uuid.uuid4())
     user = User(
         id=user_id,
@@ -48,6 +52,7 @@ def test_create_user(db_session):
     assert fetched.is_active is True
 
 def test_unique_email_constraint(db_session):
+    """Test unique email constraint"""
     # Attempt to create another user with the same email "test@example.com"
     user_id = str(uuid.uuid4())
     duplicate_user = User(
@@ -63,6 +68,7 @@ def test_unique_email_constraint(db_session):
     db_session.rollback()
 
 def test_add_social_account(db_session):
+    """Test adding a social account"""
     # Create a new user
     user = User(
         id=str(uuid.uuid4()),
@@ -90,6 +96,7 @@ def test_add_social_account(db_session):
     assert fetched_user.social_accounts[0].external_id == "google-12345"
 
 def test_refresh_token(db_session):
+    """Test refresh token creation"""
     # Create a user for token association
     user = User(
         id=str(uuid.uuid4()),
