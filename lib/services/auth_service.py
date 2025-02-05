@@ -6,7 +6,8 @@ from lib.models import User, RefreshToken, SocialAccount
 from lib.services.hashing_service import hash_password, verify_password
 from lib.services.token_service import create_access_token, create_refresh_token, decode_token
 
-def register_user(db: Session, email: str, password: str):
+def register_user(db: Session, email: str, password: str) -> str:
+    """Registers a new user"""
     # Check if user exists
     existing_user = db.query(User).filter(User.email == email).first()
     if existing_user:
@@ -26,7 +27,8 @@ def register_user(db: Session, email: str, password: str):
     db.refresh(new_user)
     return new_user.id
 
-def link_social_account(db: Session, user_id: str, provider: str, external_id: str):
+def link_social_account(db: Session, user_id: str, provider: str, external_id: str) -> SocialAccount:
+    """Links a social account to a user"""
     # Check if already linked with this provider/external_id
     existing_social = db.query(SocialAccount).filter(
         SocialAccount.provider == provider,
@@ -52,16 +54,19 @@ def link_social_account(db: Session, user_id: str, provider: str, external_id: s
     db.commit()
     return new_link
 
-def find_user_by_email(db: Session, email: str) -> User:
+def find_user_by_email(db: Session, email: str) -> User | None:
+    """Finds a user by their email address"""
     return db.query(User).filter(User.email == email).first()
 
-def authenticate_user(db: Session, email: str, password: str) -> str:
+def authenticate_user(db: Session, email: str, password: str) -> str | None:
+    """Authenticates a user with email and password"""
     user = find_user_by_email(db, email)
     if user and verify_password(password, user.hashed_password):
         return user.id
     return None
 
-def issue_tokens(db: Session, user_id: str):
+def issue_tokens(db: Session, user_id: str) -> tuple[str, str]:
+    """Issues access and refresh tokens"""
     access = create_access_token(user_id)
     refresh = create_refresh_token(user_id)
 
@@ -77,9 +82,10 @@ def issue_tokens(db: Session, user_id: str):
     db.commit()
     return access, refresh
 
-def refresh_access_token(db: Session, refresh_token_str: str):
+def refresh_access_token(db: Session, refresh_token_str: str) -> str:
+    """Refreshes the access token using a valid refresh token"""
     payload = decode_token(refresh_token_str)
-    if payload.get("type") != "refresh":
+    if payload.get("type")!= "refresh":
         raise ValueError("Invalid token type")
 
     db_token = db.query(RefreshToken).filter(
@@ -93,13 +99,15 @@ def refresh_access_token(db: Session, refresh_token_str: str):
     user_id = payload.get("sub")
     return create_access_token(user_id)
 
-def logout(db: Session, refresh_token_str: str):
+def logout(db: Session, refresh_token_str: str) -> None:
+    """Logs out a user by revoking the refresh token"""
     db_token = db.query(RefreshToken).filter(RefreshToken.token == refresh_token_str).first()
     if db_token:
         db_token.revoked = True
         db.commit()
 
-def link_or_create_user_via_social(db: Session, provider: str, external_id: str, email: str):
+def link_or_create_user_via_social(db: Session, provider: str, external_id: str, email: str) -> str:
+    """Links a social account or creates a new user if none exists"""
     # Check if a user already has this email
     user = find_user_by_email(db, email)
     if user:
